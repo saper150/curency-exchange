@@ -1,5 +1,15 @@
-import { TestBed, async } from '@angular/core/testing';
+import { TestBed, async, ComponentFixtureNoNgZone } from '@angular/core/testing';
 import { AppComponent } from './app.component';
+import { CarouselModule } from './carouselModule/carousel.module';
+import { ExchangeService } from './exchange.service';
+import { of } from 'rxjs';
+
+
+class MockExchangeService {
+  getExchangeRate() {
+    return of(10);
+  }
+}
 
 describe('AppComponent', () => {
   beforeEach(async(() => {
@@ -7,25 +17,20 @@ describe('AppComponent', () => {
       declarations: [
         AppComponent
       ],
+      imports: [CarouselModule],
+      providers: [{ provide: ExchangeService, useClass: MockExchangeService }]
     }).compileComponents();
   }));
 
-  it('should create the app', () => {
+  it('getCssUrl should return url wrapped in "url"', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app).toBeTruthy();
+    expect(fixture.componentInstance.getCssUrl('http://catimages/cat1')).toBe('url(http://catimages/cat1)');
   });
 
-  it(`should have as title 'currency-exchange'`, () => {
+  it('slideChanged should set exchange rate of currency at given index', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('currency-exchange');
+    fixture.componentInstance.slideChanged(0);
+    expect(fixture.componentInstance.exchangeCurrencies[0].rate).toBe(10);
   });
 
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('.content span').textContent).toContain('currency-exchange app is running!');
-  });
 });
